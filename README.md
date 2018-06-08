@@ -1,2 +1,2 @@
-# laravel-nextcloud-user-management
+# Laravel Nextcloud User Management
 manage your nextcloud users via laravel

@@ -1,0 +1,22 @@
+{
+    "name": "masterzero/nextcloud",
+    "description": "library for nextcloud user management",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "nextcloud"],
+    "authors": [
+        {
+            "name": "masterzero",
+            "email": "masterzerno@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MasterZero\\Nextcloud\\":"src/"
+        }
+    }
+}
