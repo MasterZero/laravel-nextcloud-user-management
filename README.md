@@ -1,10 +1,10 @@
-# Laravel Nextcloud User Management
+# Laravel Nextcloud API User Management
 manage your nextcloud users via laravel
 
 # Setup:
 1. Use following command in your terminal to install this library. (Currently the library is in development mode):
 
-    `composer require mansa/simplepay dev-master`
+    `composer require masterzero/nextcloud dev-master`
 
 2. Update the poviders in config/app.php
         
@@ -27,6 +27,7 @@ manage your nextcloud users via laravel
 return [
     'login'=> env('NEXTCLOUD_LOGIN', 'admin'),
     'password'=> env('NEXTCLOUD_PASSWORD', '12345678'),
+    'baseUrl'=> env('NEXTCLOUD_BASEURL', 'http://localhost'),
 ];
 
 ```
@@ -36,6 +37,7 @@ return [
 ```sh
 NEXTCLOUD_LOGIN=admin
 NEXTCLOUD_PASSWORD=12345678
+NEXTCLOUD_BASEURL=http://localhost
 
 ```
 
