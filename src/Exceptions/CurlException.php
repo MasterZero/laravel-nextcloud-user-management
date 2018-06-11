@@ -3,6 +3,7 @@
 namespace MasterZero\Nextcloud\Exceptions;
 
 
-class CurlException extends \Exception {
+class CurlException extends \Exception
+{
     
 }

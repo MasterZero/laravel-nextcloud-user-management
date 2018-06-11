@@ -5,34 +5,69 @@ use MasterZero\Nextcloud\Exceptions\CurlException;
 
 
 /**
-* @todo add normal descriptions
+* class MasterZero\Nextcloud\Api
 */
 class Api
 {
 
+    /**
+    * login for http-auth in nextcloud api
+    */
     protected $login;
 
+    /**
+    * password for http-auth in nextcloud api
+    */
     protected $password;
 
-    //http://localhost
+    /**
+    * url for nextcloud server. It must includes protocol. The end of url must no contains '/' character
+    * examples: 
+    * http://localhost
+    * https://production-site.com
+    * http://develop.localhost:3500
+    */
     protected $baseUrl;
 
+    /**
+    * path to api endpoint
+    */
     protected $apiPath = 'ocs/v1.php';
 
+    /**
+    * verify ssl sertificates on nextcloud server.
+    * must be 'true' in production
+    */
     protected $sslVerify = true;
 
+    /**
+    * endpoint for user list action
+    */
     protected $userListPath = 'cloud/users';
 
+    /**
+    * endpoint for user create action
+    */
     protected $userCreatePath = 'cloud/users';
 
-    protected $userUpdatePath = 'cloud/users';
+    /**
+    * endpoint for user edit action
+    */
+    protected $userEditPath = 'cloud/users';
 
-
+    /**
+    * http methods
+    */
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
 
 
+    /**
+    * @param $params | array
+    * contain custom parameters to create Api instance.
+    * all  defined in $params parameters will be overwrited by them.
+    */
     public function __construct(array $params = [])
     {
 
@@ -47,7 +82,7 @@ class Api
 
             'userListPath',
             'userCreatePath',
-            'userUpdatePath',
+            'userEditPath',
         ];
 
         foreach ($initialParam as $param) {
@@ -60,9 +95,21 @@ class Api
 
     }
 
-    //throws
-    //MasterZero\Nextcloud\Exceptions\XMLParseException
-    //MasterZero\Nextcloud\Exceptions\CurlException
+
+    /**
+    * method to get nextcloud user list
+    * @param $search | string: string to search users by userid
+    * @param $limit | int
+    * @param $offset | int
+    * @return array [
+    *    success: is success request
+    *    message: comment message from nextcloud server
+    *    users: array of userid's
+    *    response | MasterZero\Nextcloud\Response: response object with details of nextcloud answer 
+    *    ]
+    * @throws MasterZero\Nextcloud\Exceptions\XMLParseException
+    * @throws MasterZero\Nextcloud\Exceptions\CurlException
+    */
     public function getUserList(string $search = '', int $limit = 0, int $offset = 0) : array
     {
 
@@ -93,26 +140,36 @@ class Api
         $userData = $response->getData('users');
 
         $ret = [
+            'success' => $response->getStatus() === Status::USERLIST_OK,
+            'message' => $response->getMessage(),
             'users' => $userData['element'],
             'response' => $response,
-            'success' => $response->getStatus() === Status::USERLIST_OK,
         ];
 
         return $ret;
     }
 
 
-    //throws
-    //MasterZero\Nextcloud\Exceptions\XMLParseException
-    //MasterZero\Nextcloud\Exceptions\CurlException
-    public function createUser(string $username, string $password) : array
+    /**
+    * method to create nextcloud user
+    * @param $userid | string: username for create. must be unique.
+    * @param $password | string
+    * @return array [
+    *    success: is success request
+    *    message: comment message from nextcloud server
+    *    response | MasterZero\Nextcloud\Response: response object with details of nextcloud answer 
+    *    ]
+    * @throws MasterZero\Nextcloud\Exceptions\XMLParseException
+    * @throws MasterZero\Nextcloud\Exceptions\CurlException
+    */
+    public function createUser(string $userid, string $password) : array
     {
 
         $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userCreatePath;
         $method = static::METHOD_POST;
 
         $params = $this->serializeParams([
-            'userid' => $username,
+            'userid' => $userid,
             'password' => $password,
         ]);
 
@@ -129,6 +186,48 @@ class Api
         return $ret;
     }
 
+
+    /**
+    * method to edit nextcloud user parameters
+    * @param $userid | string
+    * @param $key | string: parameter to edit (email | quota | display | password)
+    * @param $value | string
+    * @return array [
+    *    success: is success request
+    *    message: comment message from nextcloud server
+    *    response | MasterZero\Nextcloud\Response: response object with details of nextcloud answer 
+    *    ]
+    * @throws MasterZero\Nextcloud\Exceptions\XMLParseException
+    * @throws MasterZero\Nextcloud\Exceptions\CurlException
+    */
+    public function editUser(string $userid, string $key, string $value) : array
+    {
+
+        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userEditPath . '/' . $userid;
+        $method = static::METHOD_PUT;
+
+        $params = $this->serializeParams([
+            'key' => $key,
+            'value' => $value,
+        ]);
+
+        $response = $this->request($url, $method, $params);
+
+
+        $ret = [
+            'success' => $response->getStatus() === Status::EDITUSER_OK,
+            'message' => $response->getMessage(),
+            'response' => $response,
+        ];
+
+        return $ret;
+    }
+
+
+    /**
+    * get default required headers
+    * @return array
+    */
     protected function defaultHeaders(): array
     {
 
@@ -138,6 +237,10 @@ class Api
         ];
     }
 
+    /**
+    * serialize array [key1 => value1, key2 => value2] to string key1=value1&key2=value2
+    * @return string
+    */
     protected function serializeParams(array $params): string
     {
 
@@ -155,7 +258,15 @@ class Api
     }
 
 
-
+    /**
+    * do request
+    * @param $url | string
+    * @param $method | string
+    * @param $headers | array of strings
+    * @return MasterZero\Nextcloud\Response
+    * @throws MasterZero\Nextcloud\Exceptions\XMLParseException
+    * @throws MasterZero\Nextcloud\Exceptions\CurlException
+    */
     protected function request(string $url, string $method = 'GET', $data = '', array $headers = []) : Response
     {
         $ch = curl_init();
@@ -163,14 +274,14 @@ class Api
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        if($method == static::METHOD_POST) {
+        if($method === static::METHOD_POST) {
 
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
-        } elseif ($method == static::METHOD_PUT) {
+        } elseif ($method === static::METHOD_PUT) {
 
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
         }
@@ -188,7 +299,7 @@ class Api
         $responseData = curl_exec($ch);
 
         if(curl_errno($ch)) {
-            throw new CurlException(curl_error($ch), 1);
+            throw new CurlException('[Nextcloud] ' . curl_error($ch), 1);
         }
 
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

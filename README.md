@@ -39,8 +39,108 @@ NEXTCLOUD_PASSWORD=12345678
 
 ```
 
-#Usage:
+# Usage:
+### create user:
+```php
+// reqeust to API
+$data = NextcloudApi::createUser($username, $password);
+
+// do something with it
+if ($data['success']) {
+
+    // do something ...
+
+} else {
+
+    // do something else ...
+
+    echo $data['message'];
+
+}
+```
+
+### user list:
+```php
+// reqeust to API
+$data =  NextcloudApi::getUserList();
+
+// do something with it
+if ($data['success']) {
+
+    foreach ($data['users'] as $userid) {
+        // do something with $userid
+    }
+
+} else {
+    
+    // do something else ...
+
+}
+
+```
+
+### edit user param:
+```php
+// reqeust to API
+$data = NextcloudApi::editUser('rabbit','quota', '200 MB');
+
+if ($data['success']) {
+
+    // do something ...
+
+} else {
+
+    // do something else ...
+
+}
+```
+
+# exceptions
 
 ```php
-    NextcloudApi::createUser($username, $password);
+
+use MasterZero\Nextcloud\Exceptions\XMLParseException;
+use MasterZero\Nextcloud\Exceptions\CurlException;
+
+// ... 
+
+try {
+    // reqeust to API
+    NextcloudApi::editUser('rabbit','quota', '200 MB');
+} catch (XMLParseException $e) {
+    // bad nextcloud answer
+} catch (CurlException $e) {
+    // bad connection
+} catch (\Exception $e) {
+    // bad something else
+}
+
+```
+
+
+# multi-server usage
+
+```php
+
+use MasterZero\Nextcloud\Api;
+
+// ... 
+
+$api = new Api([
+    'baseUrl' => 'http://develop.localhost:3500',
+    'login' => 'admin',
+    'password' => '12345678',
+    'sslVerify' => false,
+
+
+    // use default value
+    // 'apiPath' => 'custom/path/to/api.php', 
+    // 'userListPath' => '',
+    // 'userCreatePath' => '',
+    // 'userEditPath' => '',
+]);
+
+
+$api->createUser( 'dummy', 'qwerty');
+
 ```

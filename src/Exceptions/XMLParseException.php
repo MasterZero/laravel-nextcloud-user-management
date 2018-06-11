@@ -3,6 +3,7 @@
 namespace MasterZero\Nextcloud\Exceptions;
 
 
-class XMLParseException extends \Exception {
+class XMLParseException extends \Exception
+{
     
 }
