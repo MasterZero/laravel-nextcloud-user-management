@@ -41,19 +41,21 @@ class Api
     protected $sslVerify = true;
 
     /**
-    * endpoint for user list action
+    * path for user actions
     */
-    protected $userListPath = 'cloud/users';
+    protected $userPath = 'cloud/users';
 
     /**
-    * endpoint for user create action
+    * path suffix for enable
     */
-    protected $userCreatePath = 'cloud/users';
+    protected $enablePath = 'enable';
+
 
     /**
-    * endpoint for user edit action
+    * path suffix for disable
     */
-    protected $userEditPath = 'cloud/users';
+    protected $disablePath = 'disable';
+
 
     /**
     * http methods
@@ -80,9 +82,9 @@ class Api
             'apiPath',
             'sslVerify',
 
-            'userListPath',
-            'userCreatePath',
-            'userEditPath',
+            'userPath',
+            'enablePath',
+            'disablePath',
         ];
 
         foreach ($initialParam as $param) {
@@ -113,25 +115,25 @@ class Api
     public function getUserList(string $search = '', int $limit = 0, int $offset = 0) : array
     {
 
-        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userListPath;
+        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userPath;
         $method = static::METHOD_GET;
 
         $params = [];
 
-        if(strlen($search)) {
+        if (strlen($search)) {
             $params['search'] = $search;
         }
 
-        if($limit) {
+        if ($limit) {
             $params['limit'] = $limit;
         }
 
-        if($offset) {
+        if ($offset) {
             $params['offset'] = $offset;
         }
 
 
-        if(!empty($params)) {
+        if (!empty($params)) {
             $url .= '?' . $this->serializeParams($params);
         }
 
@@ -165,7 +167,7 @@ class Api
     public function createUser(string $userid, string $password) : array
     {
 
-        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userCreatePath;
+        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userPath;
         $method = static::METHOD_POST;
 
         $params = $this->serializeParams([
@@ -203,7 +205,7 @@ class Api
     public function editUser(string $userid, string $key, string $value) : array
     {
 
-        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userEditPath . '/' . $userid;
+        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userPath . '/' . $userid;
         $method = static::METHOD_PUT;
 
         $params = $this->serializeParams([
@@ -225,12 +227,69 @@ class Api
 
 
     /**
+    * method to disable nextcloud user
+    * @param $userid | string
+    * @return array [
+    *    success: is success request
+    *    message: comment message from nextcloud server
+    *    response | MasterZero\Nextcloud\Response: response object with details of nextcloud answer 
+    *    ]
+    * @throws MasterZero\Nextcloud\Exceptions\XMLParseException
+    * @throws MasterZero\Nextcloud\Exceptions\CurlException
+    */
+    public function disableUser(string $userid) : array
+    {
+
+        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userPath . '/' . $userid . '/' . $this->disablePath;
+        $method = static::METHOD_PUT;
+
+        $response = $this->request($url, $method);
+
+        $ret = [
+            'success' => $response->getStatus() === Status::DISABLEUSER_OK,
+            'message' => $response->getMessage(),
+            'response' => $response,
+        ];
+
+        return $ret;
+    }
+
+
+
+    /**
+    * method to enable nextcloud user
+    * @param $userid | string
+    * @return array [
+    *    success: is success request
+    *    message: comment message from nextcloud server
+    *    response | MasterZero\Nextcloud\Response: response object with details of nextcloud answer 
+    *    ]
+    * @throws MasterZero\Nextcloud\Exceptions\XMLParseException
+    * @throws MasterZero\Nextcloud\Exceptions\CurlException
+    */
+    public function enableUser(string $userid) : array
+    {
+        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userPath . '/' . $userid . '/' . $this->enablePath;
+        $method = static::METHOD_PUT;
+
+        $response = $this->request($url, $method);
+
+        $ret = [
+            'success' => $response->getStatus() === Status::ENABLEUSER_OK,
+            'message' => $response->getMessage(),
+            'response' => $response,
+        ];
+
+        return $ret;
+    }
+
+
+    /**
     * get default required headers
     * @return array
     */
     protected function defaultHeaders(): array
     {
-
         return [
             'Content-Type: application/x-www-form-urlencoded',
             'OCS-APIRequest: true'
@@ -244,7 +303,7 @@ class Api
     protected function serializeParams(array $params): string
     {
 
-        if(!count($params)) {
+        if (!count($params)) {
             return '';
         }
 
@@ -275,15 +334,11 @@ class Api
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         if($method === static::METHOD_POST) {
-
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-
         } elseif ($method === static::METHOD_PUT) {
-
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-
         }
 
         $userowd = $this->login . ':' . $this->password;
@@ -310,4 +365,3 @@ class Api
     }
 }
 
-?>

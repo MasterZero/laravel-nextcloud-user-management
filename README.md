@@ -97,6 +97,24 @@ if ($data['success']) {
 }
 ```
 
+
+### enable/disable user:
+```php
+// reqeust to API
+$data = NextcloudApi::enableUser('bird');
+//$data = NextcloudApi::disableUser('turtle');
+
+if ($data['success']) {
+
+    // do something ...
+
+} else {
+
+    // do something else ...
+
+}
+```
+
 # exceptions
 
 ```php
@@ -137,9 +155,9 @@ $api = new Api([
 
     // use default value
     // 'apiPath' => 'custom/path/to/api.php', 
-    // 'userListPath' => '',
-    // 'userCreatePath' => '',
-    // 'userEditPath' => '',
+    // 'userPath' => '',
+    // 'enablePath' => '',
+    // 'disablePath' => '',
 ]);
 
 

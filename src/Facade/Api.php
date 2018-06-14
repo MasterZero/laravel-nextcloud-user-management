@@ -11,6 +11,3 @@ class Api extends Facade
         return 'NextcloudApi';
     }
 }
-
-
-?>
