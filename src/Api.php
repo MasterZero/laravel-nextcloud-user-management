@@ -63,6 +63,7 @@ class Api
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
+    const METHOD_DELETE = 'DELETE';
 
 
     /**
@@ -100,6 +101,7 @@ class Api
 
     /**
      * method to get nextcloud user list
+     *
      * @param $search | string: string to search users by userid
      * @param $limit | int
      * @param $offset | int
@@ -154,6 +156,7 @@ class Api
 
     /**
      * method to create nextcloud user
+     *
      * @param $userid | string: username for create. must be unique.
      * @param $password | string
      * @return array [
@@ -191,6 +194,7 @@ class Api
 
     /**
      * method to edit nextcloud user parameters
+     *
      * @param $userid | string
      * @param $key | string: parameter to edit (email | quota | display | password)
      * @param $value | string
@@ -228,6 +232,7 @@ class Api
 
     /**
      * method to disable nextcloud user
+     *
      * @param $userid | string
      * @return array [
      *    success: is success request
@@ -258,6 +263,7 @@ class Api
 
     /**
      * method to enable nextcloud user
+     *
      * @param $userid | string
      * @return array [
      *    success: is success request
@@ -284,8 +290,39 @@ class Api
     }
 
 
+
+    /**
+     * method to delete nextcloud user
+     *
+     * @param $userid | string
+     * @return array [
+     *    success: is success request
+     *    message: comment message from nextcloud server
+     *    response | MasterZero\Nextcloud\Response: response object with details of nextcloud answer
+     *    ]
+     * @throws MasterZero\Nextcloud\Exceptions\XMLParseException
+     * @throws MasterZero\Nextcloud\Exceptions\CurlException
+     */
+    public function deleteUser(string $userid) : array
+    {
+        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userPath . '/' . $userid;
+        $method = static::METHOD_DELETE;
+
+        $response = $this->request($url, $method);
+
+        $ret = [
+            'success' => $response->getStatus() === Status::DELETEUSER_OK,
+            'message' => $response->getMessage(),
+            'response' => $response,
+        ];
+
+        return $ret;
+    }
+
+
     /**
      * get default required headers
+     *
      * @return array
      */
     protected function defaultHeaders(): array
@@ -298,6 +335,7 @@ class Api
 
      /**
      * serialize array [key1 => value1, key2 => value2] to string key1=value1&key2=value2
+     *
      * @return string
      */
     protected function serializeParams(array $params): string
@@ -319,6 +357,7 @@ class Api
 
     /**
      * do request
+     *
      * @param $url | string
      * @param $method | string
      * @param $headers | array of strings
@@ -336,7 +375,7 @@ class Api
         if($method === static::METHOD_POST) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        } elseif ($method === static::METHOD_PUT) {
+        } elseif ($method === static::METHOD_PUT || $method === static::METHOD_DELETE) {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         }

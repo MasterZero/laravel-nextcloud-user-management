@@ -43,6 +43,12 @@ abstract class Status
     const ENABLEUSER_FAILURE        = 101; // failure
 
     /**
+     * User delete endpoint
+     */
+    const DELETEUSER_OK             = 100; // successful
+    const DELETEUSER_FAILURE        = 101; // failure
+
+    /**
      * errors
      */
     const ERROR_AUTH                = 997; // bad userid/password data. permission deny.

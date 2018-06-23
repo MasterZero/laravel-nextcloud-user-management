@@ -60,6 +60,7 @@ class Response
 
     /**
      * get http code
+     *
      * @return int
      */
     public function getCode()
@@ -69,6 +70,7 @@ class Response
 
     /**
      * get http content
+     *
      * @return string
      */
     public function getAnswer()
@@ -78,6 +80,7 @@ class Response
 
     /**
      * get nextcloud status
+     *
      * @return int
      */
     public function getStatus()
@@ -87,6 +90,7 @@ class Response
 
     /**
      * get nextcloud message
+     *
      * @return string
      */
     public function getMessage()
@@ -96,6 +100,7 @@ class Response
 
     /**
      * get custom parameter of xml answer
+     *
      * @param $offset | string|null
      * @param $ret_on_unset | any
      * @return any
@@ -115,6 +120,7 @@ class Response
 
     /**
      * xml => array convertation method
+     *
      * @param $str | string
      * @return array
      */
