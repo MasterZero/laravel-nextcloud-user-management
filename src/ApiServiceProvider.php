@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace MasterZero\Nextcloud;
 
 use Illuminate\Support\ServiceProvider;
