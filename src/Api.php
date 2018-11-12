@@ -166,10 +166,10 @@ class Api
      * @throws MasterZero\Nextcloud\Exceptions\CurlException
      */
     public function getUser(string $user=''){
-        $url = parent::baseUrl . '/' . parent::apiPath .  '/' . parent::userPath . '/' . $user;
+        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userPath . '/' . $user;
         $method = static::METHOD_GET;
 
-        $response = parent::request($url, $method);
+        $response = $this->request($url, $method);
 
         $userData = $response->getData('users');
 
