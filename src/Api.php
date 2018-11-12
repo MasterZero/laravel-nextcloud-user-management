@@ -153,6 +153,33 @@ class Api
         return $ret;
     }
 
+    /**
+     * method to get nextcloud user data
+     *
+     * @param $user | string: userid
+     * @return array [
+     *    success: is success request
+     *    message: comment message from nextcloud server
+     *    response | MasterZero\Nextcloud\Response: response object with details of nextcloud answer
+     *    ]
+     * @throws MasterZero\Nextcloud\Exceptions\XMLParseException
+     * @throws MasterZero\Nextcloud\Exceptions\CurlException
+     */
+    public function getUser(string $user=''){
+        $url = $this->baseUrl . '/' . $this->apiPath .  '/' . $this->userPath . '/' . $user;
+        $method = static::METHOD_GET;
+
+        $response = $this->request($url, $method);
+
+        $userData = $response->getData('users');
+
+        $ret = [
+            'success' => $response->getStatus() === Status::USERLIST_OK,
+            'message' => $response->getMessage(),
+            'response' => $response,
+        ];
+        return $ret;       
+    }
 
     /**
      * method to create nextcloud user
